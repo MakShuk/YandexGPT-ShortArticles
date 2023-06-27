@@ -1,30 +1,12 @@
-import 'dotenv/config';
-import axios, { AxiosRequestConfig } from 'axios';
+import { LoggerService } from './services/logger/logger.service';
+import { YandexService } from './services/yandex/Yandex.service';
 
-const key = process.env.GPY_KEY;
-
-interface JsonProps {
-	article_url: string;
-}
-
-const headers = {
-	Authorization: key,
-};
-
-const json: JsonProps = {
-	article_url: 'https://habr.com/ru/news/729422/',
-};
+const logger = new LoggerService('index');
 
 async function start(): Promise<void> {
-	const url = 'https://300.ya.ru/api/sharing-url';
-	const config: AxiosRequestConfig<JsonProps> = {
-		headers,
-		method: 'post',
-		url,
-		data: json,
-	};
-	const response = await axios(config);
-	console.log(response.data);
+	const promt = new YandexService();
+	const answer = await promt.getPage('https://habr.com/ru/articles/744202/');
+	logger.warn(answer);
 }
 
 start();
