@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"type": "commonjs",
 	"scripts": {
-		"dev": "ts-node index.ts",
+		"dev": "ts-node src/index.ts",
 		"start": "cross-env NODE_ENV=production nodemon"
 	},
 	"keywords": [],
@@ -28,6 +28,7 @@
 		"@ffmpeg-installer/ffmpeg": "^1.1.0",
 		"axios": "^1.4.0",
 		"config": "^3.3.9",
+		"dotenv": "^16.3.1",
 		"openai": "^3.2.1",
 		"puppeteer": "^20.7.2",
 		"telegraf": "^4.12.2",
