@@ -1,0 +1,33 @@
+# Directories
+node_modules/
+dist/
+build/
+coverage/
+config/
+/voices/*
+/documents/*
+
+
+# Environment files
+.env
+
+# Logs
+logs/
+*.log
+log.txt
+
+# Dependency lock files
+package-lock.json
+yarn.lock
+
+# Editor files
+.idea/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+#media 
+.ogg
+.mp3
+
