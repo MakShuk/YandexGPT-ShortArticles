@@ -1,5 +1,5 @@
 {
-	"name": "chatgpt-telegrambot",
+	"name": "yandex-short-articles",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
@@ -35,3 +35,5 @@
 		"tslog": "^4.8.2"
 	}
 }
+
+//YandexGPT-ShortArticles

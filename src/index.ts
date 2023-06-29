@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { LoggerService } from './services/logger/logger.service';
-import { MessegeService } from './services/messege/messege.service';
+import { MessegeService } from './services/message/message.service';
 import { YandexService } from './services/yandex/yandex.service';
 import { LifehacerPage } from './pages/lifehacker/lifehacker';
 import { ParseDate } from './pages/lifehacker/lifehacker.type';
