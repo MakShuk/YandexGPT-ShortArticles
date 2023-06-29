@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import axios, { AxiosRequestConfig } from 'axios';
 import { LoggerService } from '../logger/logger.service';
+import { PuppeteerService } from '../puppeteer/puppeteer.service';
+import { Selector } from '../../enums/selector';
 
 interface IResponce {
 	status: string;
@@ -11,8 +13,9 @@ export class YandexService {
 	private token = process.env.GPY_KEY;
 	private yandexUrl = 'https://300.ya.ru/api/sharing-url';
 	private logger = new LoggerService('YandexService');
+	private pageService = PuppeteerService;
 
-	async getPage(url: string): Promise<string> {
+	private async getShortPageURL(url: string): Promise<string> {
 		try {
 			const json = {
 				article_url: url,
@@ -38,5 +41,21 @@ export class YandexService {
 			}
 			throw Error('YandexService Erorr');
 		}
+	}
+
+	private async getShortPageData(
+		url: string,
+	): Promise<{ title: string | null; list: (string | null)[] }> {
+		const yandex = new this.pageService(url);
+		await yandex.pageOpen();
+		const title = await yandex.getTextContent(Selector.title);
+		const list = await yandex.getListTextContent(Selector.list);
+		await yandex.close();
+		return { title: title, list: list };
+	}
+
+	async getData(url: string): Promise<{ title: string | null; list: (string | null)[] }> {
+		const shortPageUrl = await this.getShortPageURL(url);
+		return await this.getShortPageData(shortPageUrl);
 	}
 }
