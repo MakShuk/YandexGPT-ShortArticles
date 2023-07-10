@@ -31,3 +31,6 @@ Thumbs.db
 .ogg
 .mp3
 
+#db files
+db.json
+

@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { LoggerService } from '../logger/logger.service';
 import { PuppeteerService } from '../puppeteer/puppeteer.service';
 import { Selector } from '../../enums/selector';
+import { IPageData } from '../../types/page.type';
 
 interface IResponce {
 	status: string;
@@ -43,18 +44,18 @@ export class YandexService {
 		}
 	}
 
-	private async getShortPageData(
-		url: string,
-	): Promise<{ title: string | null; list: (string | null)[] }> {
+	private async getShortPageData(url: string): Promise<IPageData> {
 		const yandex = new this.pageService(url);
 		await yandex.pageOpen();
 		const title = await yandex.getTextContent(Selector.title);
 		const list = await yandex.getListTextContent(Selector.list);
+		const link = await yandex.getHref(Selector.link);
+		const clearLink = link;
 		await yandex.close();
-		return { title: title, list: list };
+		return { title: title, list: list, link: clearLink };
 	}
 
-	async getData(url: string): Promise<{ title: string | null; list: (string | null)[] }> {
+	async getData(url: string): Promise<IPageData> {
 		const shortPageUrl = await this.getShortPageURL(url);
 		return await this.getShortPageData(shortPageUrl);
 	}

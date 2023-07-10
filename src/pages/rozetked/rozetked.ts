@@ -1,7 +1,7 @@
 import { PuppeteerService } from '../../services/puppeteer/puppeteer.service';
 import { ParseDate } from '../../types/page.type';
 
-export class LifehacerPage extends PuppeteerService {
+export class RozetkedPage extends PuppeteerService {
 	constructor(startPageUrl: string) {
 		super(startPageUrl);
 	}
@@ -14,9 +14,10 @@ export class LifehacerPage extends PuppeteerService {
 		};
 		return await this.page.$$eval(selector, (lis) =>
 			lis.map((a) => {
+				const el = a as HTMLAnchorElement;
 				return {
-					title: a.ariaLabel || 'Error, element not found',
-					url: `https://lifehacker.ru${a.getAttribute('href')}` || 'Error, element not found',
+					title: el.innerText || 'Error, element not found',
+					url: `${a.getAttribute('href')}` || 'Error, element not found',
 				};
 			}),
 		);
@@ -24,9 +25,7 @@ export class LifehacerPage extends PuppeteerService {
 
 	async getParseRusult(): Promise<ParseDate[]> {
 		await this.pageOpen();
-		const data = await this.getListElements(
-			'#main > main > div.article-card-container > div.container a.lh-small-article-card__link',
-		);
+		const data = await this.getListElements('.post_new-title a');
 		await this.close();
 		return data;
 	}

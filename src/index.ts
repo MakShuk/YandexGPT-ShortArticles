@@ -3,22 +3,31 @@ import { LoggerService } from './services/logger/logger.service';
 import { MessegeService } from './services/message/message.service';
 import { YandexService } from './services/yandex/yandex.service';
 import { LifehacerPage } from './pages/lifehacker/lifehacker';
-import { ParseDate } from './pages/lifehacker/lifehacker.type';
+import { ParseDate } from './types/page.type';
 import { FileService } from './services/file/file.service';
+import { RozetkedPage } from './pages/rozetked/rozetked';
+import { TelegrafServices } from './services/telegraf/telegraf.services';
 
 const logger = new LoggerService('index');
 
 async function urlToMassage(url: string): Promise<void> {
-	const yandexGPT = new YandexService();
-	const chat = new MessegeService();
-	const message = await yandexGPT.getData(url);
-
-	chat.send(message.title || 'Error Title', message.list);
+	if (typeof process.env.BOT_TOKEN === 'string' && typeof process.env.CHAT_ID === 'string') {
+		const bot = new TelegrafServices(process.env.BOT_TOKEN);
+		const yandexGPT = new YandexService();
+		const chat = new MessegeService();
+		const message = await yandexGPT.getData(url);
+		bot.init();
+		await bot.sendTextToChat(process.env.CHAT_ID, chat.createFormatMessage(message));
+		//chat.sendToChat(message);
+	}
 }
 
 async function parsePage(): Promise<ParseDate[]> {
 	const lifehiker = new LifehacerPage('https://lifehacker.ru/');
-	return await lifehiker.getParseRusult();
+	const rozetkedPage = new RozetkedPage('https://rozetked.me/news');
+	const rozetkedResponceData = await rozetkedPage.getParseRusult();
+	const lifehikerResponceData = await lifehiker.getParseRusult();
+	return [...lifehikerResponceData, ...rozetkedResponceData];
 }
 
 async function saveData(data: ParseDate[]): Promise<ParseDate[]> {
@@ -49,7 +58,10 @@ const getNewDataArray = (sessionInPage: ParseDate[], sessionInServer: ParseDate[
 	);
 	return newSession;
 };
+
 cron.schedule('*/10 * * * *', () => {
-	logger.info('running a task every two minutes');
+	logger.info('running a task every  10 minutes');
 	start();
 });
+
+start();

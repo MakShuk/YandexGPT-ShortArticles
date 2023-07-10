@@ -46,11 +46,41 @@ export class PuppeteerService {
 	}
 
 	async getTextContent(selector: string): Promise<string | null> {
-		return await this.page.$eval(selector, (element) => element.textContent);
+		try {
+			return await this.page.$eval(selector, (element) => element.textContent);
+		} catch (e) {
+			if (e instanceof Error) {
+				this.logger.error(e.message);
+			}
+			return null;
+		}
 	}
 
+	async getHref(selector: string): Promise<string | null> {
+		try {
+			return await this.page.$eval(selector, (el) => {
+				const anchor = el as HTMLAnchorElement;
+				return anchor.href;
+			});
+		} catch (e) {
+			if (e instanceof Error) {
+				this.logger.error(e.message);
+			}
+			return null;
+		}
+	}
+
+	//a.href
+
 	async getListTextContent(selector: string): Promise<(string | null)[]> {
-		return await this.page.$$eval(selector, (lis) => lis.map((li) => li.textContent));
+		try {
+			return await this.page.$$eval(selector, (lis) => lis.map((li) => li.textContent));
+		} catch (e) {
+			if (e instanceof Error) {
+				this.logger.error(e.message);
+			}
+			return [null];
+		}
 	}
 
 	protected async delay(ms: number): Promise<void> {
