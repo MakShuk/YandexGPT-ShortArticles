@@ -19,7 +19,7 @@ export class MessegeService {
 			 `;
 		}
 		sendMessage += `
-		<i>${link}</i>`;
+		<a href="${link}">Подробнее</a>`;
 		return sendMessage;
 	}
 

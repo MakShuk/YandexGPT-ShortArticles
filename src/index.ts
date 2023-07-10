@@ -30,23 +30,19 @@ async function parsePage(): Promise<ParseDate[]> {
 	return [...lifehikerResponceData, ...rozetkedResponceData];
 }
 
-async function saveData(data: ParseDate[]): Promise<ParseDate[]> {
-	const db = new FileService('db.json');
-	if (!(await db.isCreated())) await db.writeJsonFile([]);
-	const db_data = await db.readJsonFile();
-	const new_date = getNewDataArray(data, db_data);
-	await db.writeJsonFile([...db_data, ...new_date]);
-	return new_date;
-}
-
 async function start(): Promise<void> {
 	try {
-		const date = await parsePage();
-		const new_data = await saveData(date);
+		const db = new FileService('db.json');
+		if (!(await db.isCreated())) await db.writeJsonFile([]);
+
+		const data = await parsePage();
+		const db_data = await db.readJsonFile();
+		const new_data = getNewDataArray(data, db_data);
 
 		for (const e of new_data) {
 			await urlToMassage(e.url);
 		}
+		await db.writeJsonFile([...db_data, ...new_data]);
 	} catch (error) {
 		console.error('An error occurred:', error);
 	}
