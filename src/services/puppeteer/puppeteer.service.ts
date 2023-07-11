@@ -17,11 +17,10 @@ export class PuppeteerService {
 		this.browser = await puppeteer.launch({
 			headless: 'new',
 		});
-		this.logger.info('browser init');
 		this.page = await this.browser.newPage();
 		this.logger.info('page init');
 		await this.page.goto(this.startPageUrl);
-		this.logger.info('Navigated to startPageUrl');
+		this.logger.info(`Navigated to ${this.startPageUrl}`);
 	}
 
 	protected async goTo(url: string): Promise<void> {

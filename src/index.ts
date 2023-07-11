@@ -9,16 +9,18 @@ import { RozetkedPage } from './pages/rozetked/rozetked';
 import { TelegrafServices } from './services/telegraf/telegraf.services';
 
 const logger = new LoggerService('index');
+const bot = new TelegrafServices(process.env.BOT_TOKEN || 'null');
+bot.init();
 
 async function urlToMassage(url: string): Promise<void> {
 	if (typeof process.env.BOT_TOKEN === 'string' && typeof process.env.CHAT_ID === 'string') {
-		const bot = new TelegrafServices(process.env.BOT_TOKEN);
 		const yandexGPT = new YandexService();
 		const chat = new MessegeService();
+		logger.warn('Запрос:', url);
 		const message = await yandexGPT.getData(url);
-		bot.init();
-		await bot.sendTextToChat(process.env.CHAT_ID, chat.createFormatMessage(message));
-		//chat.sendToChat(message);
+		message
+			? await bot.sendTextToChat(process.env.CHAT_ID, chat.createFormatMessage(message))
+			: null;
 	}
 }
 
@@ -30,24 +32,6 @@ async function parsePage(): Promise<ParseDate[]> {
 	return [...lifehikerResponceData, ...rozetkedResponceData];
 }
 
-async function start(): Promise<void> {
-	try {
-		const db = new FileService('db.json');
-		if (!(await db.isCreated())) await db.writeJsonFile([]);
-
-		const data = await parsePage();
-		const db_data = await db.readJsonFile();
-		const new_data = getNewDataArray(data, db_data);
-
-		for (const e of new_data) {
-			await urlToMassage(e.url);
-		}
-		await db.writeJsonFile([...db_data, ...new_data]);
-	} catch (error) {
-		console.error('An error occurred:', error);
-	}
-}
-
 const getNewDataArray = (sessionInPage: ParseDate[], sessionInServer: ParseDate[]): ParseDate[] => {
 	const newSession = sessionInPage.filter(
 		(e) => !sessionInServer.some((session) => session.title === e.title),
@@ -55,9 +39,30 @@ const getNewDataArray = (sessionInPage: ParseDate[], sessionInServer: ParseDate[
 	return newSession;
 };
 
+async function start(): Promise<void> {
+	try {
+		const db = new FileService('db.json');
+		const db_data = await db.readJsonFile();
+		const data = await parsePage();
+		const new_data = getNewDataArray(data, db_data);
+
+		for (const data of new_data) {
+			await urlToMassage(data.url);
+			await db.writeJsonFile([...db_data, data]);
+			await delay(15000);
+		}
+	} catch (error) {
+		console.error('An error occurred:', error);
+	}
+}
+
+async function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+start();
+
 cron.schedule('*/10 * * * *', () => {
 	logger.info('running a task every  10 minutes');
 	start();
 });
-
-start();

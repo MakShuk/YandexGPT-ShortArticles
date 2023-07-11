@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { LoggerService } from '../logger/logger.service';
 import { PuppeteerService } from '../puppeteer/puppeteer.service';
 import { Selector } from '../../enums/selector';
@@ -36,11 +36,12 @@ export class YandexService {
 			const response: IResponce = (await axios(config)).data;
 			return response.sharing_url;
 		} catch (e) {
-			if (e instanceof Error) {
-				this.logger.error(e.message);
-				return e.message;
+			if (e instanceof AxiosError) {
+				this.logger.error(e.name);
+				return e.name;
 			}
-			throw Error('YandexService Erorr');
+			return `${e}`;
+			//throw Error('YandexService Erorr');
 		}
 	}
 
@@ -55,8 +56,11 @@ export class YandexService {
 		return { title: title, list: list, link: clearLink };
 	}
 
-	async getData(url: string): Promise<IPageData> {
+	async getData(url: string): Promise<IPageData | null> {
 		const shortPageUrl = await this.getShortPageURL(url);
+		if (shortPageUrl === 'AxiosError') {
+			return null;
+		}
 		return await this.getShortPageData(shortPageUrl);
 	}
 }

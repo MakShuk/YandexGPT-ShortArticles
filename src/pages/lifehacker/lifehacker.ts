@@ -14,9 +14,10 @@ export class LifehacerPage extends PuppeteerService {
 		};
 		return await this.page.$$eval(selector, (lis) =>
 			lis.map((a) => {
+				const el = a as HTMLAnchorElement;
 				return {
-					title: a.ariaLabel || 'Error, element not found',
-					url: `https://lifehacker.ru${a.getAttribute('href')}` || 'Error, element not found',
+					title: el.ariaLabel || 'Error, element not found',
+					url: el.href || 'Error, element not found',
 				};
 			}),
 		);
